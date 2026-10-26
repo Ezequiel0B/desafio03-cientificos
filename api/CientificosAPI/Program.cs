@@ -1,23 +1,92 @@
+using System.Reflection;
 using CientificosAPI.Data;
+using CientificosAPI.Middleware;
+using CientificosAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Registra AppDbContext y utiliza la conexión de appsettings.json
+// SQL Server y Entity Framework Core
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection")));
 
-// Habilita los controladores de la API
+// Servicios e inyección de dependencias
+builder.Services.AddScoped<
+    ICientificoService,
+    CientificoService>();
+
+builder.Services.AddScoped<
+    IEspecialidadService,
+    EspecialidadService>();
+
+builder.Services.AddScoped<
+    IDescubrimientoService,
+    DescubrimientoService>();
+
+builder.Services.AddScoped<
+    IInvestigacionService,
+    InvestigacionService>();
+
+// Permite que el cliente web llame a la API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirClientes", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
-// Habilita Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configuración de Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "API de Científicos",
+            Version = "v1",
+            Description =
+                "API REST para gestionar científicos, " +
+                "especialidades, descubrimientos e investigaciones."
+        });
+
+    var nombreXml =
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+
+    var rutaXml = Path.Combine(
+        AppContext.BaseDirectory,
+        nombreXml);
+
+    options.IncludeXmlComments(rutaXml);
+});
+
 var app = builder.Build();
-// Publica Swagger para documentar y probar la API
+
+// Debe colocarse primero para capturar los errores posteriores
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseSwagger();
-app.UseSwaggerUI();
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint(
+        "/swagger/v1/swagger.json",
+        "API de Científicos v1");
+});
+
+app.UseCors("PermitirClientes");
+
 app.UseAuthorization();
-// Busca y activa todos los controladores
+
 app.MapControllers();
+
 app.Run();
