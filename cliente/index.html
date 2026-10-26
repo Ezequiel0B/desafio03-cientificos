@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Laboratorio Científico API</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>Laboratorio Científico</h1>
+            <p>Cliente de pruebas para la API REST</p>
+        </div>
+
+        <div class="conexion">
+            <label for="baseUrl">URL de la API</label>
+
+            <input
+                id="baseUrl"
+                value="http://localhost:5100"
+                autocomplete="off">
+
+            <button id="btnConexion" type="button">
+                Probar conexión
+            </button>
+
+            <span id="estadoConexion">Sin comprobar</span>
+        </div>
+    </header>
+
+    <main>
+        <aside>
+            <h2>Endpoints</h2>
+            <div id="menuEndpoints"></div>
+        </aside>
+
+        <section class="panel">
+            <div class="encabezado-peticion">
+                <span id="metodo" class="metodo">GET</span>
+                <h2 id="tituloEndpoint">Listar científicos</h2>
+            </div>
+
+            <div class="ruta" id="rutaEndpoint">
+                /api/cientificos
+            </div>
+
+            <div id="parametros"></div>
+
+            <div id="seccionCuerpo">
+                <label for="cuerpo">Cuerpo JSON</label>
+
+                <textarea
+                    id="cuerpo"
+                    spellcheck="false"></textarea>
+            </div>
+
+            <button id="btnEnviar" class="principal" type="button">
+                Enviar petición
+            </button>
+
+            <section class="respuesta">
+                <h2>Respuesta</h2>
+
+                <div class="datos-respuesta">
+                    <span id="estadoHttp">Sin ejecutar</span>
+                    <span id="duracion"></span>
+                </div>
+
+                <div id="urlEjecutada" class="ruta">
+                    Ninguna petición enviada
+                </div>
+
+                <pre id="resultado">La respuesta aparecerá aquí.</pre>
+            </section>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
